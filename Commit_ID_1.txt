@@ -1,3 +1,5 @@
 Testing squashing of commits. This is the First Commit.
 
 Adding second commit message.
+
+Adding third commit message
