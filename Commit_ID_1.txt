@@ -3,3 +3,5 @@ Testing squashing of commits. This is the First Commit.
 Adding second commit message.
 
 Adding third commit message
+
+Added a new commit message from 'users/mk/Testing_how_to_squash_commits" branch
