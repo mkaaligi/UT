@@ -15,38 +15,34 @@ jobs:
     if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch'
 
     steps:
-      - name: Checkout repo
+      - name: Checkout main branch
         uses: actions/checkout@v4
-        with:
-          ref: main
 
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
+      - name: Download artifacts from workflow
+        uses: dawidd6/download-artifact@v2
         with:
-          name: vidiff-report
-          path: artifact-files
+          workflow: vidiff.yml
+          branch: main
+          path: vidiff-out
 
       - name: Deploy to gh-pages
         shell: bash
         run: |
-          # Create gh-pages branch if it doesn't exist
           git config user.email "action@github.com"
           git config user.name "GitHub Action"
           
-          # Create or checkout gh-pages
-          if git rev-parse --verify gh-pages >/dev/null 2>&1; then
-            git checkout gh-pages
-          else
-            git checkout --orphan gh-pages
+          # Get or create gh-pages branch
+          git fetch origin gh-pages 2>/dev/null || true
+          git checkout -b gh-pages origin/gh-pages 2>/dev/null || git checkout --orphan gh-pages
+          
+          # Clear and deploy
+          find . -mindepth 1 ! -name '.git' -exec rm -rf {} + 2>/dev/null || true
+          
+          if [ -d "vidiff-out/vidiff-report" ]; then
+            cp -r vidiff-out/vidiff-report/* .
           fi
           
-          # Clear old content and copy new
-          rm -rf *
-          if [ -d "artifact-files" ]; then
-            cp -r artifact-files/* . || true
-          fi
-          
-          # Add and push
+          # Commit and push
           git add .
-          git commit -m "Deploy VIDiff reports" || echo "No changes to commit"
-          git push origin gh-pages -f
+          git commit -m "Deploy VIDiff reports [skip ci]" --allow-empty
+          git push origin gh-pages
