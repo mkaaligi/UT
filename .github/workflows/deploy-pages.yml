@@ -8,8 +8,6 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 jobs:
   deploy:
@@ -18,57 +16,37 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v5
-
-      - name: Download VIDiff artifacts
-        uses: dawidd6/action-download-artifact@v2
+        uses: actions/checkout@v4
         with:
-          workflow: vidiff.yml
-          path: artifacts
+          ref: main
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: vidiff-report
+          path: artifact-files
 
-      - name: Create pages structure
+      - name: Deploy to gh-pages
         shell: bash
         run: |
-          mkdir -p site
-          # Copy VIDiff report to site
-          if [ -d "artifacts/vidiff-report" ]; then
-            cp -r artifacts/vidiff-report/* site/ || true
+          # Create gh-pages branch if it doesn't exist
+          git config user.email "action@github.com"
+          git config user.name "GitHub Action"
+          
+          # Create or checkout gh-pages
+          if git rev-parse --verify gh-pages >/dev/null 2>&1; then
+            git checkout gh-pages
+          else
+            git checkout --orphan gh-pages
           fi
-          # Create index if it doesn't exist
-          if [ ! -f "site/index.html" ]; then
-            cat > site/index.html << 'EOF'
-          <!DOCTYPE html>
-          <html>
-          <head>
-            <meta charset="UTF-8">
-            <title>VI Reports</title>
-            <style>
-              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 2em; }
-              h1 { color: #0969da; }
-              .report { margin: 1em 0; padding: 1em; background: #f6f8fa; border-radius: 8px; }
-              a { color: #0969da; text-decoration: none; }
-              a:hover { text-decoration: underline; }
-            </style>
-          </head>
-          <body>
-            <h1>VI Reports - Private Dashboard</h1>
-            <div class="report">
-              <h2>VIDiff Reports</h2>
-              <p><a href="index.html">View Latest VIDiff Report →</a></p>
-            </div>
-          </body>
-          </html>
-          EOF
+          
+          # Clear old content and copy new
+          rm -rf *
+          if [ -d "artifact-files" ]; then
+            cp -r artifact-files/* . || true
           fi
-
-      - name: Upload to GitHub Pages
-        uses: actions/upload-pages-artifact@v2
-        with:
-          path: site
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v3
+          
+          # Add and push
+          git add .
+          git commit -m "Deploy VIDiff reports" || echo "No changes to commit"
+          git push origin gh-pages -f
