@@ -1,6 +1,6 @@
 {
   "platform": "windows",
   "files": [
-    {"file": "test.vi", "type": "added", "report": "test.vi/index.html"}
+    {"file": "test-vi.vi", "type": "added", "report": "test-vi.vi/index.html"}
   ]
 }
