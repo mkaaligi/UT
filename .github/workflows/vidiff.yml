@@ -86,13 +86,18 @@ jobs:
         shell: bash
         run: |
           cd head
+          FILES=""
           if git rev-parse ${{ steps.shas.outputs.base }}..HEAD > /dev/null 2>&1; then
-            git diff --name-only ${{ steps.shas.outputs.base }}..HEAD | grep -E '\.(vi|ctl)$' > /tmp/changed.txt || true
+            FILES=$(git diff --name-only ${{ steps.shas.outputs.base }}..HEAD | grep -E '\.(vi|ctl)$' || true)
           fi
-          cat /tmp/changed.txt
+          echo "files<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$FILES" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          echo "Changed VI/CTL files:"
+          echo "$FILES"
 
       - name: Run VIDiff action
-        if: hashFiles('/tmp/changed.txt') != ''
+        if: steps.changed.outputs.files != ''
         uses: ./.github/actions/vidiff
         with:
           head-dir: head
