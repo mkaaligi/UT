@@ -12,37 +12,50 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch'
+    if: always()
 
     steps:
-      - name: Checkout main branch
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download artifacts from workflow
-        uses: dawidd6/download-artifact@v2
+      - name: Download VIDiff artifact
+        uses: actions/github-script@v7
+        id: artifact
         with:
-          workflow: vidiff.yml
-          branch: main
-          path: vidiff-out
+          script: |
+            const run_id = context.payload.workflow_run.id;
+            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              run_id,
+            });
+            const art = artifacts.data.artifacts.find(a =>
+              a.name === 'vidiff-report'
+            );
+            if (!art) {
+              core.warning('No VIDiff artifact found — skipping deploy.');
+              return null;
+            }
+            const dl = await github.rest.actions.downloadArtifact({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              artifact_id: art.id,
+              archive_format: 'zip',
+            });
+            const fs = require('fs');
+            fs.writeFileSync('/tmp/vidiff-artifact.zip', Buffer.from(dl.data));
+            return art.name;
 
-      - name: Deploy to gh-pages
+      - name: Extract artifact
+        if: steps.artifact.outputs.result != 'null'
         shell: bash
         run: |
-          git config user.email "action@github.com"
-          git config user.name "GitHub Action"
-          
-          # Get or create gh-pages branch
-          git fetch origin gh-pages 2>/dev/null || true
-          git checkout -b gh-pages origin/gh-pages 2>/dev/null || git checkout --orphan gh-pages
-          
-          # Clear and deploy
-          find . -mindepth 1 ! -name '.git' -exec rm -rf {} + 2>/dev/null || true
-          
-          if [ -d "vidiff-out/vidiff-report" ]; then
-            cp -r vidiff-out/vidiff-report/* .
-          fi
-          
-          # Commit and push
-          git add .
-          git commit -m "Deploy VIDiff reports [skip ci]" --allow-empty
-          git push origin gh-pages
+          mkdir -p /tmp/vidiff-report
+          unzip -q /tmp/vidiff-artifact.zip -d /tmp/vidiff-report
+
+      - name: Deploy VIDiff report to GitHub Pages
+        if: steps.artifact.outputs.result != 'null'
+        uses: ./.github/actions/publish-gh-pages
+        with:
+          publish_dir: /tmp/vidiff-report
+          destination_dir: vidiff
