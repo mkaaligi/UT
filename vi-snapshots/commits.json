@@ -1,10 +1,10 @@
 [
   {
-    "sha": "2efe32d7fececbfb139565d4fa3fb845a0f6c5ad",
-    "short": "2efe32d",
-    "message": "Fix VI Snapshots workflow: add missing Docker daemon startup step",
+    "sha": "46dc7b4139487431c82ba308c0516255fa7d03c8",
+    "short": "46dc7b4",
+    "message": "Revert OpsDir back to github.action_path (working state)",
     "author": "Mallikarjun Kaaligi",
-    "date": "2026-08-20T13:40:03+05:30",
+    "date": "2026-08-20T15:45:42+05:30",
     "vi_count": 7
   }
 ]
