@@ -90,7 +90,7 @@ jobs:
 
       - name: Build VI snapshots (incremental, content-addressed)
         id: snapshots
-        uses: elijah286/LabVIEW-CI-with-Containers/.github/actions/snapshots@main
+        uses: ./.github/actions/snapshots
         with:
           image: 'nationalinstruments/labview:latest-windows'
           mode: ${{ github.event.inputs.mode || 'head' }}
