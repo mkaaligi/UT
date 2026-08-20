@@ -88,6 +88,17 @@ jobs:
             "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }}" \
             -d "{\"state\":\"pending\",\"target_url\":\"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\",\"description\":\"VI Snapshots in progress\",\"context\":\"CI / VI Snapshots\"}"
 
+      - name: Ensure Docker daemon is running
+        shell: pwsh
+        run: ./.github/labview/ensure-docker.ps1
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build VI snapshots (incremental, content-addressed)
         id: snapshots
         uses: ./.github/actions/snapshots
