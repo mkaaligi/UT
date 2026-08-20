@@ -1,10 +1,10 @@
 [
   {
-    "sha": "ebc33118de836a25fc4e155b1d6de1ec22359aef",
-    "short": "ebc3311",
-    "message": "Add root landing page linking to CI artifacts (vi-snapshots, vidiff)",
+    "sha": "2efe32d7fececbfb139565d4fa3fb845a0f6c5ad",
+    "short": "2efe32d",
+    "message": "Fix VI Snapshots workflow: add missing Docker daemon startup step",
     "author": "Mallikarjun Kaaligi",
-    "date": "2026-08-20T12:42:20+05:30",
+    "date": "2026-08-20T13:40:03+05:30",
     "vi_count": 7
   }
 ]
