@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UT Repo — CI Artifacts</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 600px;
+      width: 100%;
+      padding: 40px;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+    .artifacts {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .artifact-card {
+      display: flex;
+      align-items: center;
+      padding: 20px;
+      border: 2px solid #f0f0f0;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      color: inherit;
+    }
+    .artifact-card:hover {
+      border-color: #667eea;
+      background: #f8f9ff;
+      transform: translateX(4px);
+    }
+    .artifact-icon {
+      font-size: 32px;
+      margin-right: 16px;
+      width: 50px;
+      text-align: center;
+    }
+    .artifact-content h2 {
+      color: #333;
+      font-size: 18px;
+      margin-bottom: 4px;
+    }
+    .artifact-content p {
+      color: #666;
+      font-size: 13px;
+    }
+    .arrow {
+      margin-left: auto;
+      color: #667eea;
+      font-size: 20px;
+      transition: transform 0.3s ease;
+    }
+    .artifact-card:hover .arrow {
+      transform: translateX(4px);
+    }
+    footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #f0f0f0;
+      text-align: center;
+      color: #999;
+      font-size: 12px;
+    }
+    .badge {
+      display: inline-block;
+      background: #e8f5e9;
+      color: #2e7d32;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 UT Repository</h1>
+    <p class="subtitle">CI/CD Reports & Artifacts</p>
+
+    <div class="artifacts">
+      <!-- VI Snapshots & Browser -->
+      <a href="vi-snapshots/" class="artifact-card">
+        <div class="artifact-icon">📸</div>
+        <div class="artifact-content">
+          <h2>VI Snapshots & Browser</h2>
+          <p>Automated LabVIEW VI gallery with navigation and in-place rendering</p>
+          <div class="badge">Incremental rendering</div>
+        </div>
+        <div class="arrow">→</div>
+      </a>
+
+      <!-- VIDiff Report -->
+      <a href="vidiff/" class="artifact-card">
+        <div class="artifact-icon">📊</div>
+        <div class="artifact-content">
+          <h2>VIDiff Report</h2>
+          <p>Visual diff analysis of changed LabVIEW VIs between commits</p>
+          <div class="badge">Per-commit analysis</div>
+        </div>
+        <div class="arrow">→</div>
+      </a>
+    </div>
+
+    <footer>
+      <p>Updated automatically by GitHub Actions on each push</p>
+      <p style="margin-top: 8px;">
+        <a href="https://github.com/mkaaligi/UT" style="color: #667eea; text-decoration: none;">View Repository</a>
+      </p>
+    </footer>
+  </div>
+</body>
+</html>
