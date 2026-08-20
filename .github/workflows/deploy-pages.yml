@@ -103,3 +103,10 @@ jobs:
         with:
           publish_dir: /tmp/vi-snapshots-report
           destination_dir: vi-snapshots
+
+      # Deploy root landing page linking to all reports
+      - name: Deploy root landing page
+        uses: ./.github/actions/publish-gh-pages
+        with:
+          publish_dir: .github/pages
+          destination_dir: .
