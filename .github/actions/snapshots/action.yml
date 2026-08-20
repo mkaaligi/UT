@@ -64,8 +64,8 @@ runs:
           -TargetSha         '${{ inputs.target-sha || github.sha }}' `
           -OutDir            "${{ github.workspace }}\${{ inputs.out-dir }}" `
           -ExistingByBlobDir '${{ inputs.existing-by-blob-dir }}' `
-          -OpsDir            "${{ github.action_path }}" `
-          -PagesDir          "${{ github.action_path }}" `
+          -OpsDir            "${{ github.workspace }}\.github\labview" `
+          -PagesDir          "${{ github.workspace }}\.github\pages" `
           -Image             "${{ inputs.image }}" `
           -MaxCommits        ${{ inputs.max-commits }} `
           -MaxVIs            ${{ inputs.max-vis }} `
