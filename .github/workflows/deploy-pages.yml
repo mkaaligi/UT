@@ -1,8 +1,8 @@
-name: Deploy VIDiff to GitHub Pages
+name: Deploy to GitHub Pages
 
 on:
   workflow_run:
-    workflows: ["VIDiff Report — Windows Container"]
+    workflows: ["VIDiff Report — Windows Container", "VI Snapshots and VI Browser"]
     types: [completed]
   workflow_dispatch:
 
@@ -18,9 +18,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Download VIDiff artifact
       - name: Download VIDiff artifact
         uses: actions/github-script@v7
-        id: artifact
+        id: vidiff-artifact
         with:
           script: |
             const run_id = context.payload.workflow_run.id;
@@ -33,7 +34,7 @@ jobs:
               a.name === 'vidiff-report'
             );
             if (!art) {
-              core.warning('No VIDiff artifact found — skipping deploy.');
+              core.info('No VIDiff artifact found.');
               return null;
             }
             const dl = await github.rest.actions.downloadArtifact({
@@ -46,16 +47,59 @@ jobs:
             fs.writeFileSync('/tmp/vidiff-artifact.zip', Buffer.from(dl.data));
             return art.name;
 
-      - name: Extract artifact
-        if: steps.artifact.outputs.result != 'null'
+      - name: Extract VIDiff artifact
+        if: steps.vidiff-artifact.outputs.result != 'null'
         shell: bash
         run: |
           mkdir -p /tmp/vidiff-report
           unzip -q /tmp/vidiff-artifact.zip -d /tmp/vidiff-report
 
       - name: Deploy VIDiff report to GitHub Pages
-        if: steps.artifact.outputs.result != 'null'
+        if: steps.vidiff-artifact.outputs.result != 'null'
         uses: ./.github/actions/publish-gh-pages
         with:
           publish_dir: /tmp/vidiff-report
           destination_dir: vidiff
+
+      # Download VI Snapshots artifact
+      - name: Download VI Snapshots artifact
+        uses: actions/github-script@v7
+        id: snapshots-artifact
+        with:
+          script: |
+            const run_id = context.payload.workflow_run.id;
+            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              run_id,
+            });
+            const art = artifacts.data.artifacts.find(a =>
+              a.name === 'vi-snapshots'
+            );
+            if (!art) {
+              core.info('No VI Snapshots artifact found.');
+              return null;
+            }
+            const dl = await github.rest.actions.downloadArtifact({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              artifact_id: art.id,
+              archive_format: 'zip',
+            });
+            const fs = require('fs');
+            fs.writeFileSync('/tmp/snapshots-artifact.zip', Buffer.from(dl.data));
+            return art.name;
+
+      - name: Extract VI Snapshots artifact
+        if: steps.snapshots-artifact.outputs.result != 'null'
+        shell: bash
+        run: |
+          mkdir -p /tmp/vi-snapshots-report
+          unzip -q /tmp/snapshots-artifact.zip -d /tmp/vi-snapshots-report
+
+      - name: Deploy VI Snapshots to GitHub Pages
+        if: steps.snapshots-artifact.outputs.result != 'null'
+        uses: ./.github/actions/publish-gh-pages
+        with:
+          publish_dir: /tmp/vi-snapshots-report
+          destination_dir: vi-snapshots
