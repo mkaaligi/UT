@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  VI Analyzer configuration for LabVIEW-CI-with-Containers
+  __WORKSPACE_PATH__ is replaced at runtime by the bash CI script
+  with the absolute container path (/workspace on Linux).
+  NOTE: LabVIEW requires path values to be wrapped in double-quotes inside the XML.
+-->
+<Config>
+	<FileFormatVersion>1</FileFormatVersion>
+	<AnalyzeProject>FALSE</AnalyzeProject>
+	<ProjectPath>""</ProjectPath>
+	<TargetIndex>0</TargetIndex>
+	<ItemsToAnalyze>
+		<Item>
+			<Path>"."</Path>
+			<Removed>FALSE</Removed>
+		</Item>
+		<Item>
+			<Path>"User-Defined Test"</Path>
+			<Removed>TRUE</Removed>
+		</Item>
+	</ItemsToAnalyze>
+	<!--
+	  TestConfigData is intentionally empty. In builtin mode the CI runner does
+	  not pass this file to LabVIEWCLI; it analyzes the workspace directory
+	  directly, which runs the full default VI Analyzer test suite. This file is
+	  kept as a reference/template for config-file-based analysis.
+	-->
+	<TestConfigData>
+	</TestConfigData>
+	<ExclusionData>
+	</ExclusionData>
+</Config>
