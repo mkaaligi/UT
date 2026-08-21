@@ -13,17 +13,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Test 1 - LabVIEWCLI help (headless mode)
+      - name: Test 1 - LabVIEWCLI help (headless mode, with -LabVIEWPath)
         continue-on-error: true
         run: |
-          echo "=== Test: LabVIEWCLI -Help -Headless ==="
-          timeout 10 LabVIEWCLI -Help -Headless || echo "Exit code: $?"
+          echo "=== Test: LabVIEWCLI -LabVIEWPath /usr/local/natinst/LabVIEW-2026-64 -Help -Headless ==="
+          timeout 10 LabVIEWCLI -LabVIEWPath "/usr/local/natinst/LabVIEW-2026-64" -Help -Headless || echo "Exit code: $?"
 
-      - name: Test 2 - LabVIEWCLI MassCompile help (headless)
+      - name: Test 2 - LabVIEWCLI MassCompile help (headless, with -LabVIEWPath)
         continue-on-error: true
         run: |
-          echo "=== Test: LabVIEWCLI -OperationName MassCompile -Help -Headless ==="
-          timeout 10 LabVIEWCLI -OperationName MassCompile -Help -Headless || echo "Exit code: $?"
+          echo "=== Test: LabVIEWCLI -LabVIEWPath /usr/local/natinst/LabVIEW-2026-64 -OperationName MassCompile -Help -Headless ==="
+          timeout 10 LabVIEWCLI -LabVIEWPath "/usr/local/natinst/LabVIEW-2026-64" -OperationName MassCompile -Help -Headless || echo "Exit code: $?"
 
       - name: Test 3 - Find LabVIEW binary
         continue-on-error: true
@@ -38,17 +38,17 @@ jobs:
           echo "LV_YEAR=${LV_YEAR:-NOT SET}"
           echo "LabVIEW path: /usr/local/natinst/LabVIEW-${LV_YEAR}-64"
 
-      - name: Test 5 - LabVIEWCLI MassCompile on a directory (headless)
+      - name: Test 5 - LabVIEWCLI MassCompile on a directory (headless, with -LabVIEWPath)
         continue-on-error: true
         run: |
-          echo "=== Test: LabVIEWCLI -OperationName MassCompile -Headless ==="
-          timeout 30 LabVIEWCLI -OperationName MassCompile -DirectoryToCompile "/tmp" -Headless || echo "Exit code: $?"
+          echo "=== Test: LabVIEWCLI -LabVIEWPath /usr/local/natinst/LabVIEW-2026-64 -OperationName MassCompile -DirectoryToCompile /tmp -Headless ==="
+          timeout 30 LabVIEWCLI -LabVIEWPath "/usr/local/natinst/LabVIEW-2026-64" -OperationName MassCompile -DirectoryToCompile "/tmp" -Headless || echo "Exit code: $?"
 
-      - name: Test 6 - LabVIEWCLI CloseLabVIEW (graceful shutdown)
+      - name: Test 6 - LabVIEWCLI CloseLabVIEW (graceful shutdown, with -LabVIEWPath)
         continue-on-error: true
         run: |
-          echo "=== Test: LabVIEWCLI -OperationName CloseLabVIEW -Headless ==="
-          timeout 10 LabVIEWCLI -OperationName CloseLabVIEW -Headless || echo "Exit code: $?"
+          echo "=== Test: LabVIEWCLI -LabVIEWPath /usr/local/natinst/LabVIEW-2026-64 -OperationName CloseLabVIEW -Headless ==="
+          timeout 10 LabVIEWCLI -LabVIEWPath "/usr/local/natinst/LabVIEW-2026-64" -OperationName CloseLabVIEW -Headless || echo "Exit code: $?"
 
       - name: Test 7 - LabVIEW environment variables
         continue-on-error: true
@@ -66,8 +66,20 @@ jobs:
       - name: Test 9 - Check for PrintToSingleFileHtml.vi
         continue-on-error: true
         run: |
-          echo "=== Check for PrintToSingleFileHtml.vi (used for VI rendering) ==="
-          find /usr/local/natinst -name "*PrintToSingleFileHtml*" 2>/dev/null || echo "Not found"
+          echo "=== Check for PrintToSingleFileHtml.vi (critical for VI rendering) ==="
+          find /usr/local/natinst -name "*PrintToSingleFileHtml*" -o -name "*PrintTo*" 2>/dev/null | head -20
+          echo "=== Also checking for .so files related to rendering ==="
+          find /usr/local/natinst -name "*Print*" -type f 2>/dev/null | grep -E "\.(so|vi)$" | head -20
+
+      - name: Test 10 - Check LD_LIBRARY_PATH and library locations
+        continue-on-error: true
+        run: |
+          echo "=== LD_LIBRARY_PATH ==="
+          echo "${LD_LIBRARY_PATH:-NOT SET}"
+          echo "=== Look for libniDotNETCoreInterop.so ==="
+          find /usr/local/natinst -name "libniDotNETCoreInterop.so*" 2>/dev/null
+          echo "=== Look in lib64 and lib directories ==="
+          find /usr/local/natinst/LabVIEW-2026-64 -type d -name "lib*" 2>/dev/null | head -10
 
       - name: Test 10 - Verify container has bash and basic tools
         continue-on-error: true
