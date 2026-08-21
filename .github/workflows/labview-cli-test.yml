@@ -1,0 +1,111 @@
+name: LabVIEW Linux CLI Command Tests
+run-name: LabVIEW CLI - ${{ github.sha }}
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-labview-cli-commands:
+    runs-on: ubuntu-latest
+    container:
+      image: nationalinstruments/labview:2026q1-linux
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Test 1 - LabVIEWCLI version (no args)
+        continue-on-error: true
+        run: |
+          echo "=== Test: LabVIEWCLI with no arguments ==="
+          timeout 10 LabVIEWCLI || echo "Exit code: $?"
+
+      - name: Test 2 - LabVIEWCLI -? (help flag)
+        continue-on-error: true
+        run: |
+          echo "=== Test: LabVIEWCLI -? ==="
+          timeout 10 LabVIEWCLI -? || echo "Exit code: $?"
+
+      - name: Test 3 - which LabVIEW
+        continue-on-error: true
+        run: |
+          echo "=== Test: which LabVIEW ==="
+          which LabVIEW || echo "LabVIEW not in PATH"
+
+      - name: Test 4 - find LabVIEW binary
+        continue-on-error: true
+        run: |
+          echo "=== Test: find LabVIEW binary ==="
+          find /usr/local/natinst -name "LabVIEW*" -type f 2>/dev/null | head -20
+
+      - name: Test 5 - LabVIEWCLI BuildSpec (on test.vi)
+        continue-on-error: true
+        run: |
+          echo "=== Test: LabVIEWCLI BuildSpec ==="
+          timeout 30 LabVIEWCLI -BuildSpec "test.vi" -Target "Default" || echo "Exit code: $?"
+
+      - name: Test 6 - LabVIEWCLI Scriptable open
+        continue-on-error: true
+        run: |
+          echo "=== Test: LabVIEWCLI Scriptable -MakeWritable test.vi ==="
+          timeout 30 LabVIEWCLI "Scriptable" "-MakeWritable" "test.vi" || echo "Exit code: $?"
+
+      - name: Test 7 - xvfb-run wrapper (X virtual framebuffer)
+        continue-on-error: true
+        run: |
+          echo "=== Test: xvfb-run with LabVIEWCLI ==="
+          which xvfb-run || echo "xvfb-run not installed"
+          timeout 10 xvfb-run -a LabVIEWCLI || echo "Exit code: $?"
+
+      - name: Test 8 - LabVIEW environment check
+        continue-on-error: true
+        run: |
+          echo "=== LabVIEW environment variables ==="
+          env | grep -i labview || echo "No LABVIEW_* env vars"
+          env | grep -i lv_ || echo "No LV_* env vars"
+
+      - name: Test 9 - LabVIEW version detection
+        continue-on-error: true
+        run: |
+          echo "=== LabVIEW binary inspection ==="
+          ls -lh /usr/local/natinst/LabVIEW*/bin/LabVIEW* 2>/dev/null | head -10
+
+      - name: Test 10 - PrintToSingleFileHtml.vi existence
+        continue-on-error: true
+        run: |
+          echo "=== Check for PrintToSingleFileHtml.vi ==="
+          find /usr/local/natinst -name "*PrintToSingleFileHtml*" 2>/dev/null || echo "Not found"
+
+      - name: Test 11 - Check /usr/local/natinst structure
+        continue-on-error: true
+        run: |
+          echo "=== /usr/local/natinst directory structure ==="
+          ls -la /usr/local/natinst/ | head -30
+
+      - name: Test 12 - Check LabVIEW-2026/bin
+        continue-on-error: true
+        run: |
+          echo "=== Contents of LabVIEW-2026/bin ==="
+          ls -lh /usr/local/natinst/LabVIEW-2026-64/bin/ 2>/dev/null | head -30
+
+      - name: Test 13 - Try headless rendering (HDF5-based?)
+        continue-on-error: true
+        run: |
+          echo "=== Test: Check for headless VI rendering options ==="
+          ls -la /usr/local/natinst/LabVIEW-2026-64/lib* 2>/dev/null | head -20
+
+      - name: Test 14 - Parse a VI file (binary inspection)
+        continue-on-error: true
+        run: |
+          echo "=== VI file info ==="
+          file test.vi
+          hexdump -C test.vi | head -30
+
+      - name: Test 15 - Shell environment in container
+        continue-on-error: true
+        run: |
+          echo "=== Container shell environment ==="
+          echo "PATH: $PATH"
+          echo "USER: $USER"
+          echo "HOME: $HOME"
+          echo "PWD: $PWD"
+          echo "Shell: $SHELL"
