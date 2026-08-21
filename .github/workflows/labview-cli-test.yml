@@ -25,6 +25,18 @@ jobs:
           echo "=== Test: LabVIEWCLI -LabVIEWPath /usr/local/natinst/LabVIEW-2026-64 -OperationName MassCompile -Help -Headless ==="
           timeout 10 LabVIEWCLI -LabVIEWPath "/usr/local/natinst/LabVIEW-2026-64" -OperationName MassCompile -Help -Headless || echo "Exit code: $?"
 
+      - name: Test 2b - LabVIEWCLI CreateComparisonReport help (VIDiff operation)
+        continue-on-error: true
+        run: |
+          echo "=== Test: LabVIEWCLI -LabVIEWPath /usr/local/natinst/LabVIEW-2026-64 -OperationName CreateComparisonReport -Help -Headless ==="
+          timeout 10 LabVIEWCLI -LabVIEWPath "/usr/local/natinst/LabVIEW-2026-64" -OperationName CreateComparisonReport -Help -Headless || echo "Exit code: $?"
+
+      - name: Test 2c - LabVIEWCLI PrintToSingleFileHtml help (VIDiff operation for added/deleted VIs)
+        continue-on-error: true
+        run: |
+          echo "=== Test: LabVIEWCLI -LabVIEWPath /usr/local/natinst/LabVIEW-2026-64 -OperationName PrintToSingleFileHtml -Help -Headless ==="
+          timeout 10 LabVIEWCLI -LabVIEWPath "/usr/local/natinst/LabVIEW-2026-64" -OperationName PrintToSingleFileHtml -Help -Headless || echo "Exit code: $?"
+
       - name: Test 3 - Find LabVIEW binary
         continue-on-error: true
         run: |
