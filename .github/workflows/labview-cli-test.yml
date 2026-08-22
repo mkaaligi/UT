@@ -74,25 +74,25 @@ jobs:
         run: |
           Write-Host "=== Test: LabVIEWCLI -OperationName MassCompile -Headless ==="
           docker run --rm -v "${{ github.workspace }}:C:\workspace" nationalinstruments/labview:2026q1-windows LabVIEWCLI -OperationName MassCompile -DirectoryToCompile "C:\workspace" -Headless -LogToConsole TRUE
-          echo "python3: $(which python3)"
-          echo "git: $(which git)"
 
-      - name: Test 11 - Check LabVIEW user permissions
+      - name: Test 11 - Check Windows toolchain availability
         continue-on-error: true
         run: |
-          echo "=== Current user and home ==="
-          whoami
-          id
-          echo "HOME: $HOME"
-          echo "PWD: $PWD"
+          Write-Host "=== Windows toolchain check ==="
+          Write-Host "python: $((Get-Command python -ErrorAction SilentlyContinue).Source ?? 'NOT FOUND')"
+          Write-Host "git   : $((Get-Command git -ErrorAction SilentlyContinue).Source ?? 'NOT FOUND')"
+          Write-Host "docker: $((Get-Command docker -ErrorAction SilentlyContinue).Source ?? 'NOT FOUND')"
+          Write-Host "User  : $env:USERNAME"
+          Write-Host "Home  : $HOME"
+          Write-Host "PWD   : $PWD"
 
-      - name: Test 12 - Parse test VI (binary info)
+      - name: Test 12 - Parse test VI (basic file info)
         continue-on-error: true
         run: |
-          echo "=== VI file info ==="
-          if [ -f "test.vi" ]; then
-            file test.vi
-            hexdump -C test.vi | head -10
-          else
-            echo "test.vi not found"
-          fi
+          Write-Host "=== VI file info ==="
+          if (Test-Path "test.vi") {
+            Get-Item "test.vi" | Format-List Name,Length,FullName
+            Get-Content "test.vi" -TotalCount 10
+          } else {
+            Write-Host "test.vi not found"
+          }
