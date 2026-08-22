@@ -1,103 +1,79 @@
-name: LabVIEW Linux CLI Command Tests
-run-name: LabVIEW CLI - ${{ github.sha }}
+name: LabVIEW Windows CLI Command Tests
+run-name: LabVIEW Windows CLI - ${{ github.sha }}
 
 on:
   workflow_dispatch:
 
 jobs:
-  test-labview-cli-commands:
-    runs-on: ubuntu-latest
-    container:
-      image: nationalinstruments/labview:2026q1-linux
+  test-labview-windows-cli:
+    runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Test 1 - LabVIEWCLI help (headless mode, with -LabVIEWPath)
-        continue-on-error: true
-        run: |
-          echo "=== Test: LabVIEWCLI -LabVIEWPath /usr/local/natinst/LabVIEW-2026-64 -Help -Headless ==="
-          timeout 10 LabVIEWCLI -LabVIEWPath "/usr/local/natinst/LabVIEW-2026-64" -Help -Headless || echo "Exit code: $?"
+      - name: Pull Windows LabVIEW image
+        run: docker pull nationalinstruments/labview:2026q1-windows
+        timeout-minutes: 30
 
-      - name: Test 2 - LabVIEWCLI MassCompile help (headless, with -LabVIEWPath)
+      - name: Test 1 - LabVIEWCLI -Version -Headless
         continue-on-error: true
         run: |
-          echo "=== Test: LabVIEWCLI -LabVIEWPath /usr/local/natinst/LabVIEW-2026-64 -OperationName MassCompile -Help -Headless ==="
-          timeout 10 LabVIEWCLI -LabVIEWPath "/usr/local/natinst/LabVIEW-2026-64" -OperationName MassCompile -Help -Headless || echo "Exit code: $?"
+          Write-Host "=== Test: LabVIEWCLI -Version -Headless ==="
+          docker run --rm nationalinstruments/labview:2026q1-windows LabVIEWCLI -Version -Headless
 
-      - name: Test 2b - LabVIEWCLI CreateComparisonReport help (VIDiff operation)
+      - name: Test 2 - LabVIEWCLI -Help -Headless
         continue-on-error: true
         run: |
-          echo "=== Test: LabVIEWCLI -LabVIEWPath /usr/local/natinst/LabVIEW-2026-64 -OperationName CreateComparisonReport -Help -Headless ==="
-          timeout 10 LabVIEWCLI -LabVIEWPath "/usr/local/natinst/LabVIEW-2026-64" -OperationName CreateComparisonReport -Help -Headless || echo "Exit code: $?"
+          Write-Host "=== Test: LabVIEWCLI -Help -Headless ==="
+          docker run --rm nationalinstruments/labview:2026q1-windows LabVIEWCLI -Help -Headless
 
-      - name: Test 2c - LabVIEWCLI PrintToSingleFileHtml help (VIDiff operation for added/deleted VIs)
+      - name: Test 3 - LabVIEWCLI -ListOperations -Headless
         continue-on-error: true
         run: |
-          echo "=== Test: LabVIEWCLI -LabVIEWPath /usr/local/natinst/LabVIEW-2026-64 -OperationName PrintToSingleFileHtml -Help -Headless ==="
-          timeout 10 LabVIEWCLI -LabVIEWPath "/usr/local/natinst/LabVIEW-2026-64" -OperationName PrintToSingleFileHtml -Help -Headless || echo "Exit code: $?"
+          Write-Host "=== Test: LabVIEWCLI -ListOperations -Headless ==="
+          docker run --rm nationalinstruments/labview:2026q1-windows LabVIEWCLI -ListOperations -Headless
 
-      - name: Test 3 - Find LabVIEW binary
+      - name: Test 4 - LabVIEWCLI MassCompile help -Headless
         continue-on-error: true
         run: |
-          echo "=== Test: find LabVIEW binary ==="
-          find /usr/local/natinst -name "LabVIEW*" -type f 2>/dev/null | head -20
+          Write-Host "=== Test: LabVIEWCLI -OperationName MassCompile -Help -Headless ==="
+          docker run --rm nationalinstruments/labview:2026q1-windows LabVIEWCLI -OperationName MassCompile -Help -Headless
 
-      - name: Test 4 - Check LV_YEAR environment variable
+      - name: Test 5 - LabVIEWCLI CreateComparisonReport help -Headless
         continue-on-error: true
         run: |
-          echo "=== LV_YEAR env var ==="
-          echo "LV_YEAR=${LV_YEAR:-NOT SET}"
-          echo "LabVIEW path: /usr/local/natinst/LabVIEW-${LV_YEAR}-64"
+          Write-Host "=== Test: LabVIEWCLI -OperationName CreateComparisonReport -Help -Headless ==="
+          docker run --rm nationalinstruments/labview:2026q1-windows LabVIEWCLI -OperationName CreateComparisonReport -Help -Headless
 
-      - name: Test 5 - LabVIEWCLI MassCompile on a directory (headless, with -LabVIEWPath)
+      - name: Test 6 - LabVIEWCLI PrintToSingleFileHtml help -Headless
         continue-on-error: true
         run: |
-          echo "=== Test: LabVIEWCLI -LabVIEWPath /usr/local/natinst/LabVIEW-2026-64 -OperationName MassCompile -DirectoryToCompile /tmp -Headless ==="
-          timeout 30 LabVIEWCLI -LabVIEWPath "/usr/local/natinst/LabVIEW-2026-64" -OperationName MassCompile -DirectoryToCompile "/tmp" -Headless || echo "Exit code: $?"
+          Write-Host "=== Test: LabVIEWCLI -OperationName PrintToSingleFileHtml -Help -Headless ==="
+          docker run --rm nationalinstruments/labview:2026q1-windows LabVIEWCLI -OperationName PrintToSingleFileHtml -Help -Headless
 
-      - name: Test 6 - LabVIEWCLI CloseLabVIEW (graceful shutdown, with -LabVIEWPath)
+      - name: Test 7 - LabVIEWCLI ExecuteVI -Headless on test.vi
         continue-on-error: true
         run: |
-          echo "=== Test: LabVIEWCLI -LabVIEWPath /usr/local/natinst/LabVIEW-2026-64 -OperationName CloseLabVIEW -Headless ==="
-          timeout 10 LabVIEWCLI -LabVIEWPath "/usr/local/natinst/LabVIEW-2026-64" -OperationName CloseLabVIEW -Headless || echo "Exit code: $?"
+          Write-Host "=== Test: LabVIEWCLI -OperationName ExecuteVI -Headless ==="
+          docker run --rm -v "${{ github.workspace }}:C:\workspace" nationalinstruments/labview:2026q1-windows LabVIEWCLI -OperationName ExecuteVI -VI "C:\workspace\test.vi" -Headless -LogToConsole TRUE
 
-      - name: Test 7 - LabVIEW environment variables
+      - name: Test 8 - LabVIEWCLI BuildVI -Headless on test.vi
         continue-on-error: true
         run: |
-          echo "=== LabVIEW environment variables ==="
-          env | grep -i labview || echo "No LABVIEW_* env vars"
-          env | grep -i lv_ || echo "No LV_* env vars"
+          Write-Host "=== Test: LabVIEWCLI -OperationName BuildVI -Headless ==="
+          docker run --rm -v "${{ github.workspace }}:C:\workspace" nationalinstruments/labview:2026q1-windows LabVIEWCLI -OperationName BuildVI -VI "C:\workspace\test.vi" -Headless -LogToConsole TRUE
 
-      - name: Test 8 - LabVIEW binary location
+      - name: Test 9 - LabVIEWCLI CreateComparisonReport -Headless
         continue-on-error: true
         run: |
-          echo "=== LabVIEW binary inspection ==="
-          ls -lh /usr/local/natinst/LabVIEW*/bin/LabVIEW* 2>/dev/null | head -10 || echo "Binary not found"
+          Write-Host "=== Test: LabVIEWCLI -OperationName CreateComparisonReport -Headless ==="
+          docker run --rm -v "${{ github.workspace }}:C:\workspace" nationalinstruments/labview:2026q1-windows LabVIEWCLI -OperationName CreateComparisonReport -SourceVI "C:\workspace\test.vi" -TargetVI "C:\workspace\test-vi.vi" -Headless -LogToConsole TRUE
 
-      - name: Test 9 - Check for PrintToSingleFileHtml.vi
+      - name: Test 10 - LabVIEWCLI MassCompile -Headless
         continue-on-error: true
         run: |
-          echo "=== Check for PrintToSingleFileHtml.vi (critical for VI rendering) ==="
-          find /usr/local/natinst -name "*PrintToSingleFileHtml*" -o -name "*PrintTo*" 2>/dev/null | head -20
-          echo "=== Also checking for .so files related to rendering ==="
-          find /usr/local/natinst -name "*Print*" -type f 2>/dev/null | grep -E "\.(so|vi)$" | head -20
-
-      - name: Test 10 - Check LD_LIBRARY_PATH and library locations
-        continue-on-error: true
-        run: |
-          echo "=== LD_LIBRARY_PATH ==="
-          echo "${LD_LIBRARY_PATH:-NOT SET}"
-          echo "=== Look for libniDotNETCoreInterop.so ==="
-          find /usr/local/natinst -name "libniDotNETCoreInterop.so*" 2>/dev/null
-          echo "=== Look in lib64 and lib directories ==="
-          find /usr/local/natinst/LabVIEW-2026-64 -type d -name "lib*" 2>/dev/null | head -10
-
-      - name: Test 10 - Verify container has bash and basic tools
-        continue-on-error: true
-        run: |
-          echo "=== Shell and tools check ==="
-          echo "bash: $(which bash)"
+          Write-Host "=== Test: LabVIEWCLI -OperationName MassCompile -Headless ==="
+          docker run --rm -v "${{ github.workspace }}:C:\workspace" nationalinstruments/labview:2026q1-windows LabVIEWCLI -OperationName MassCompile -DirectoryToCompile "C:\workspace" -Headless -LogToConsole TRUE
           echo "python3: $(which python3)"
           echo "git: $(which git)"
 
